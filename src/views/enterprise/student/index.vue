@@ -19,11 +19,23 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="性别" prop="studentSex">
-        <el-select v-model="queryParams.studentSex" placeholder="请选择性别" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+<!--      <el-form-item label="性别" prop="studentSex">-->
+<!--        <el-select v-model="queryParams.studentSex" placeholder="请选择性别" clearable size="small">-->
+<!--          <el-option label="请选择字典生成" value="" />-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+
+      <el-form-item label="性别">
+        <el-select v-model="form.studentSex" placeholder="请选择">
+          <el-option
+            v-for="dict in sexOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          ></el-option>
         </el-select>
       </el-form-item>
+
       <el-form-item label="状态" prop="studentStatus">
         <el-select v-model="queryParams.studentStatus" placeholder="请选择状态" clearable size="small">
           <el-option label="请选择字典生成" value="" />
@@ -89,7 +101,10 @@
       <el-table-column label="编号" align="center" prop="studentId" />
       <el-table-column label="学生名称" align="center" prop="studentName" />
       <el-table-column label="年龄" align="center" prop="studentAge" />
-      <el-table-column label="性别" align="center" prop="studentSex" />
+      <el-table-column label="性别" align="center" :formatter="statusFormat" prop="studentSex" />
+
+
+
       <el-table-column label="状态" align="center" prop="studentStatus" />
       <el-table-column label="生日" align="center" prop="studentBirthday" width="180">
         <template slot-scope="scope">
@@ -134,11 +149,25 @@
         <el-form-item label="年龄" prop="studentAge">
           <el-input v-model="form.studentAge" placeholder="请输入年龄" />
         </el-form-item>
-        <el-form-item label="性别">
-          <el-select v-model="form.studentSex" placeholder="请选择性别">
-            <el-option label="请选择字典生成" value="" />
-          </el-select>
-        </el-form-item>
+<!--        <el-form-item label="性别">-->
+<!--          <el-select v-model="form.studentSex" placeholder="请选择性别">-->
+<!--            <el-option label="请选择字典生成" value="" />-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
+
+<!--        <el-col :span="12">-->
+          <el-form-item label="性别">
+            <el-select v-model="form.studentSex" placeholder="请选择">
+              <el-option
+                v-for="dict in sexOptions"
+                :key="dict.dictValue"
+                :label="dict.dictLabel"
+                :value="dict.dictValue"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+<!--        </el-col>-->
+
         <el-form-item label="状态">
           <el-radio-group v-model="form.studentStatus">
             <el-radio label="1">请选择字典生成</el-radio>
@@ -168,6 +197,8 @@ export default {
   name: "Student",
   data() {
     return {
+        // 性别状态字典
+        sexOptions: [],
       // 遮罩层
       loading: true,
       // 选中数组
@@ -206,6 +237,9 @@ export default {
   },
   created() {
     this.getList();
+      this.getDicts("sys_user_sex").then(response => {
+          this.sexOptions = response.data;
+      });
   },
   methods: {
     /** 查询学生信息列表 */
@@ -321,7 +355,11 @@ export default {
         }).then(response => {
           this.download(response.msg);
         }).catch(function() {});
-    }
+    },
+      // 字典状态字典翻译
+      statusFormat(row, column) {
+          return this.selectDictLabel(this.sexOptions, row.studentSex);
+      },
   }
 };
 </script>
